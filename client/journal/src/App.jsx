@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 import axios from 'axios';
+import fs from 'fs';
 
 function App() {
 
@@ -10,9 +11,12 @@ function App() {
   const [errMsgDate, setErrMsgDate] = useState('');
   const [paragraph, setParagraph] = useState('');
   const [date, setDate] = useState('');
-  const handleSubmit = async(e) => {
+  const [journals, setJournals] = useState([]);
+
+
+  const handleSubmit = async() => {
     
-    e.preventDefault();
+    
     const currentDate = new Date();
     console.log({currentDate});
     console.log("clicked");
@@ -35,7 +39,7 @@ function App() {
       const journalDate = date ? date : month.length === 2 ? `${month}/${day}/${year}` : `0${month}/${day}/${year}`
       const response = await axios.post(
         'http://localhost:3000/api/journals',
-        JSON.stringify({title: title,date:journalDate, journal: paragraph}),
+        JSON.stringify({id: Math.random(),title: title,date:journalDate, journal: paragraph}),
         {
           headers: {"Content-Type": 'application/json'},
           withCredentials: true
@@ -155,6 +159,35 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/journals', {
+          withCredentials: true,
+        });
+        setJournals(response.data.journals);
+      } catch (error) {
+        console.error('Error fetching journals:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleEdit = () => {
+
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/journals/${id}`);
+      const updatedJournals = journals.filter((journal) => journal.id !== id);
+      setJournals(updatedJournals);
+    } catch (error) {
+      console.error('Error deleting journal entry:', error);
+    }
+  };
+
   return (
     <>
       <form
@@ -202,6 +235,21 @@ function App() {
           Submit
         </button>
       </form>
+      <div style={{display:'flex', justifyContent:'center', flexDirection:'column', margin:'auto', alignItems:'center', marginTop:'1rem'}}>
+        {journals?.map((entry) => {
+          
+          return (
+            <div style={{ border: '1px solid black', marginBottom: '1rem', width:"300px" }} key={entry.id}>
+              <h2>{entry.title}</h2>
+              <p>{entry.date}</p>
+              <p>{entry.journal}</p>
+              <button onClick={handleEdit}>Edit</button>
+              <button onClick={() => handleDelete(entry.id)}>Delete</button>
+            </div>
+          );
+         
+        })}
+      </div>
     </>
   );
 }
