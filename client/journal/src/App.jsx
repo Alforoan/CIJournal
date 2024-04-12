@@ -29,9 +29,13 @@ function App() {
       setErrMsgPara('');
     }
     try {
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() + 1;
+      const day = new Date().getDate();
+      const journalDate = date ? date : month.length === 2 ? `${month}/${day}/${year}` : `0${month}/${day}/${year}`
       const response = await axios.post(
         'http://localhost:3000/api/journals',
-        JSON.stringify({title: title,date:date, journal: paragraph}),
+        JSON.stringify({title: title,date:journalDate, journal: paragraph}),
         {
           headers: {"Content-Type": 'application/json'},
           withCredentials: true
