@@ -1,3 +1,5 @@
 {"title":"fdfd","date":"06/02/1995","journal":"dfdf"}
 {"title":"fdfd","date":"06/02/1995","journal":"dfdfdfd"}
 {"title":"fdfd","date":"06/02/1995","journal":"dfdfdfd"}
+{"title":"somethign","date":"","journal":"hi there"}
+{"title":"something now","date":"04/12/2024","journal":"hi there"}
