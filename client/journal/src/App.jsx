@@ -32,6 +32,13 @@ function App() {
     return '';
   };
 
+   const isValidInput = (input) => {
+     const pattern = /^[a-zA-Z0-9.,!?'"\s]+$/;
+     console.log({input});
+     console.log(pattern.test(input));
+     return pattern.test(input);
+   };
+
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     const errorMessage = validateTitleLength(newTitle);
@@ -49,8 +56,18 @@ function App() {
 
 
   const handleParaChange = (e) => {
-    setParagraph(e.target.value);
-    setErrMsgPara('');
+
+    const newEntry = e.target.value;
+    console.log("type of this thing", typeof newEntry);
+    if (!isValidInput(newEntry)) {
+      console.log("is this even working");
+      e.preventDefault();
+      setErrMsgPara('invalid characters detected');
+      setParagraph('');
+    } else {
+      setParagraph(e.target.value);
+      setErrMsgPara('');
+    }
   }
 
   return (
