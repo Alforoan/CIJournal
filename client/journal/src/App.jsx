@@ -25,12 +25,28 @@ function App() {
 
   }
 
+  const validateTitleLength = (title) => {
+    if (title.length > 25) {
+      return '25 characters max!';
+    }
+    return '';
+  };
+
   const handleTitleChange = (e) => {
-    console.log(e.target.value);
-    setTitle(e.target.value);
-    setErrMsg('');
-    
-  }
+    const newTitle = e.target.value;
+    const errorMessage = validateTitleLength(newTitle);
+
+    if (errorMessage) {
+      if (newTitle.length > 25) {
+        e.preventDefault();
+      }
+      setErrMsg(errorMessage);
+    } else {
+      setTitle(newTitle);
+      setErrMsg('');
+    }
+  };
+
 
   const handleParaChange = (e) => {
     setParagraph(e.target.value);
@@ -53,6 +69,7 @@ function App() {
           type='text'
           style={{ width: '200px' }}
           onChange={handleTitleChange}
+          value={title}
         />
         <p style={{ color: 'red' }}>{errMsg}</p>
         <label htmlFor='journal'>Journal</label>
@@ -60,6 +77,7 @@ function App() {
           onChange={handleParaChange}
           id='journal'
           style={{ height: '300px', width: '200px' }}
+          value={paragraph}
         ></textarea>
         <p style={{ color: 'red' }}>{errMsgPara}</p>
         <button
