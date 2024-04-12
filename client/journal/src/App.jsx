@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css'
+import axios from 'axios';
 
 function App() {
 
@@ -9,7 +10,7 @@ function App() {
   const [errMsgDate, setErrMsgDate] = useState('');
   const [paragraph, setParagraph] = useState('');
   const [date, setDate] = useState('');
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     
     e.preventDefault();
     const currentDate = new Date();
@@ -17,13 +18,28 @@ function App() {
     console.log("clicked");
     if (!title) {
       setErrMsg('Enter the title');
+      return;
     } else {
       setErrMsg('');
     }
     if (!paragraph) {
       setErrMsgPara('Write something');
+      return;
     } else {
       setErrMsgPara('');
+    }
+    try {
+      const response = await axios.post(
+        'http://localhost:3000/api/journals',
+        JSON.stringify({title: title,date:date, journal: paragraph}),
+        {
+          headers: {"Content-Type": 'application/json'},
+          withCredentials: true
+        }
+      );
+      console.log(response.data); 
+    } catch (error) {
+      console.error('Error:', error);
     }
 
 
@@ -45,13 +61,6 @@ function App() {
 
    const isValidDate = (curDate) => {
     const pattern = /^\d{2}\/\d{2}\/\d{4}$/;
-    const month = new Date().getMonth() + 1;
-    const day = new Date().getDate();
-    const selectedDate = new Date(
-        new Date().getFullYear(),
-        parseInt(curDate.substring(0, 2)) - 1,
-        parseInt(curDate.substring(3, 5))
-      );
     
 
 
