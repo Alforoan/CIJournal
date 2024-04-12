@@ -66,10 +66,39 @@ app.get('/api/journals', async (req, res) => {
   }
 });
 
-app.post('/api/journals', async (req, res) => {
-  const { title, date, journal } = req.body;
 
-  const jsonData = JSON.stringify({ title, date, journal }) + '\n';
+app.delete('/api/journals/:id', async (req, res) => {
+  const { id } = req.params;
+  const journals = await readAndParseFile('journals.txt');
+  console.log({ journals });
+  const filteredJournals = journals.filter((journal) => {
+    const idString = String(id);
+    const journalIdString = String(journal.id);
+    return journalIdString !== idString;
+  });
+
+  const filePath = 'journals.txt';
+  const newData = filteredJournals
+    .map((journal) => JSON.stringify(journal))
+    .join('\n');
+
+  try {
+    await fs.promises.writeFile(filePath, newData);
+    console.log(`Data replaced in file: ${newData}`);
+    res.status(200).json({ message: 'Journal entry deleted successfully' });
+  } catch (err) {
+    console.error('Error replacing data in file:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+app.post('/api/journals', async (req, res) => {
+  const {id, title, date, journal } = req.body;
+
+  const jsonData = JSON.stringify({ id, title, date, journal }) + '\n';
+  const jsonDataIfDataExists =
+    '\n' + JSON.stringify({ id, title, date, journal }) + '\n';
 
   try {
     const filePath = 'journals.txt';
@@ -77,9 +106,12 @@ app.post('/api/journals', async (req, res) => {
       await fs.promises.writeFile(filePath, '');
       console.log(`File created: ${filePath}`);
     }
-
-
-    await appendToFile(filePath, jsonData);
+    const journals = await readAndParseFile(filePath);
+    if(journals.length > 0){
+      await appendToFile(filePath, jsonDataIfDataExists);
+    }else{
+      await appendToFile(filePath, jsonData);
+    }
 
 
     res.json({ message: 'Data received and appended to file successfully' });
