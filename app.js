@@ -92,6 +92,37 @@ app.delete('/api/journals/:id', async (req, res) => {
   }
 });
 
+app.put('/api/journals/:id', async (req, res) => {
+  const { id } = req.params;
+  const updatedJournalData = req.body; 
+  const journals = await readAndParseFile('journals.txt');
+  console.log({ journals });
+
+  const index = journals.findIndex(
+    (journal) => String(journal.id) === String(id)
+  );
+  if (index === -1) {
+    return res.status(404).json({ error: 'Journal entry not found' });
+  }
+
+  journals[index] = updatedJournalData;
+
+  
+  const newData = journals.map((journal) => JSON.stringify(journal)).join('\n');
+
+  const filePath = 'journals.txt';
+
+  try {
+    await fs.promises.writeFile(filePath, newData);
+    console.log(`Data replaced in file: ${newData}`);
+    res.status(200).json({ message: 'Journal entry updated successfully' });
+  } catch (err) {
+    console.error('Error replacing data in file:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 app.post('/api/journals', async (req, res) => {
   const {id, title, date, journal } = req.body;
